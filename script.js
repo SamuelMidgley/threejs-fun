@@ -23,8 +23,8 @@ const sphere1 = new THREE.Mesh(geometry1, material1)
 sphere1.position.set(-1,0,.4)
 scene.add(sphere1)
 
-const axesHelper = new THREE.AxesHelper( 5 );
-scene.add( axesHelper );
+// const axesHelper = new THREE.AxesHelper( 5 );
+// scene.add( axesHelper );
 
 
 // Lights
@@ -60,8 +60,8 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 3
-camera.position.y = 3
+camera.position.x = 0
+camera.position.y = 0
 camera.position.z = 3
 scene.add(camera)
 

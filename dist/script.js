@@ -1,40 +1,58 @@
 import * as THREE from "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js"
 
+// Load Canvas
 const canvas = document.querySelector('.webgl')
+
+// Create Scene
 const scene = new THREE.Scene()
 
-// Objects
-// const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
-const geometry = new THREE.IcosahedronGeometry(1, 4);
-
-// Materials
-
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xf4ab32)
-
-// Mesh
-const sphere = new THREE.Mesh(geometry,material)
-scene.add(sphere)
-
-const geometry1 = new THREE.IcosahedronGeometry(.2, 4)
-const material1 = new THREE.MeshPhongMaterial()
-material1.color = new THREE.Color(0xbbbabf)
-const sphere1 = new THREE.Mesh(geometry1, material1)
-sphere1.position.set(-1,0,.4)
-scene.add(sphere1)
-
+// Axes Helper
 // const axesHelper = new THREE.AxesHelper( 5 );
 // scene.add( axesHelper );
 
 
-// Lights
+// Creating the Sun
+const geometry = new THREE.IcosahedronGeometry(1, 4);
+const material = new THREE.MeshBasicMaterial()
+material.color = new THREE.Color(0xf4ab32) // Yellow
+const sun = new THREE.Mesh(geometry,material)
+scene.add(sun)
 
-const pointLight = new THREE.PointLight(0xffffff, 1)
+// Creating the Planets
+function planetCreator(radius, color){
+    const geometry = new THREE.IcosahedronGeometry(radius, 4)
+    const material = new THREE.MeshPhongMaterial()
+    material.color = new THREE.Color(color)
+    const sphere = new THREE.Mesh(geometry, material)
+    return sphere
+}
+
+const mercury = planetCreator(.1, 0xbbbabf)
+const venus = planetCreator(.2, 0xaf7b4b)
+const earth = planetCreator(.2, 0x3f4f21)
+const mars = planetCreator(.2, 0xe57d58)
+const jupiter = planetCreator(.4, 0xae816a)
+const saturn = planetCreator(.3, 0xebcb80)
+const uranus = planetCreator(.3, 0xcdf3f4)
+const neptune = planetCreator(.3, 0x3a57e0)
+
+const planetList = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
+planetList.forEach(element => {
+    scene.add(element)
+});
+
+// Planet Orbit function
+function planetOrbit(planet, radius, speed, elapsedTime, offset){
+    planet.position.x = radius*Math.cos(offset + elapsedTime / speed)
+    planet.position.z = radius*Math.sin(offset + elapsedTime / speed) 
+}
+
+
+// Lighting
+const pointLight = new THREE.PointLight(0xffffff, 2)
 scene.add(pointLight)
 
-/**
- * Sizes
- */
+// Sizes
 const sizes = {
     width: window.innerWidth,
     height: window.innerHeight
@@ -55,47 +73,43 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
-/**
- * Camera
- */
-// Base camera
+// Camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 3
+camera.position.x = 10
+camera.position.y = 7
+camera.position.z = 10
+// Point camera towards sun
+camera.lookAt(new THREE.Vector3(0, 0, 0))
 scene.add(camera)
 
 // Controls
 // const controls = new OrbitControls(camera, canvas)
 // controls.enableDamping = true
 
-/**
- * Renderer
- */
+// Renderer
 const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
-/**
- * Animate
- */
 
+// Animator
 const clock = new THREE.Clock()
 
 const tick = () =>
 {
-
     const elapsedTime = clock.getElapsedTime()
 
     // Update objects
-    sphere.rotation.y = .5 * elapsedTime
-    sphere1.rotation.y = .5 * elapsedTime
-
-
-    sphere1.position.x = 2*Math.cos(elapsedTime) + 0;
-    sphere1.position.z = 2*Math.sin(elapsedTime) + 0; // These to strings make it work
+    planetOrbit(mercury, 2, 1, elapsedTime, 0)
+    planetOrbit(venus, 4, 2, elapsedTime, .4)
+    planetOrbit(earth, 6, 4, elapsedTime, 0.2)
+    planetOrbit(mars, 8, 6, elapsedTime, .1)
+    planetOrbit(jupiter, 10, 7, elapsedTime, 1)
+    planetOrbit(saturn, 12, 8, elapsedTime, .5)
+    planetOrbit(uranus, 14, 9, elapsedTime, 1.7)
+    planetOrbit(neptune, 16, 10, elapsedTime, 3)
 
     // Update Orbital Controls
     // controls.update()
@@ -108,17 +122,3 @@ const tick = () =>
     console.log(elapsedTime)
 }
 tick()
-
-// var t = 0;
-// function render() { 
-//     requestAnimationFrame(render); 
-//     t += 0.01;          
-//     sphere.rotation.y += 0.005;
-//     sphere1.rotation.y += 0.03;
-
-//     sphere1.position.x = 1*Math.cos(t) + 0;
-//     sphere1.position.z = 1*Math.sin(t) + 0; // These to strings make it work
-
-//     renderer.render(scene, camera); 
-// } 
-// render()

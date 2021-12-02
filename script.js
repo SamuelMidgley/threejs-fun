@@ -5,7 +5,7 @@ const scene = new THREE.Scene()
 
 // Objects
 // const geometry = new THREE.TorusGeometry( .7, .2, 16, 100 );
-const geometry = new THREE.IcosahedronGeometry(.7, 4);
+const geometry = new THREE.IcosahedronGeometry(1, 4);
 
 // Materials
 
@@ -18,19 +18,18 @@ scene.add(sphere)
 
 const geometry1 = new THREE.IcosahedronGeometry(.2, 4)
 const material1 = new THREE.MeshPhongMaterial()
-material1.color = new THREE.Color(0xff0000)
+material1.color = new THREE.Color(0xbbbabf)
 const sphere1 = new THREE.Mesh(geometry1, material1)
-sphere1.position.set(-1,-.3,.4)
+sphere1.position.set(-1,0,.4)
 scene.add(sphere1)
 
+const axesHelper = new THREE.AxesHelper( 5 );
+scene.add( axesHelper );
 
 
 // Lights
 
 const pointLight = new THREE.PointLight(0xffffff, 1)
-// pointLight.position.x = 2
-// pointLight.position.y = 3
-// pointLight.position.z = 4
 scene.add(pointLight)
 
 /**
@@ -61,9 +60,9 @@ window.addEventListener('resize', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 0
-camera.position.y = 0
-camera.position.z = 2
+camera.position.x = 3
+camera.position.y = 3
+camera.position.z = 3
 scene.add(camera)
 
 // Controls
@@ -91,7 +90,12 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
 
     // Update objects
+    sphere.rotation.y = .5 * elapsedTime
     sphere1.rotation.y = .5 * elapsedTime
+
+
+    sphere1.position.x = 2*Math.cos(elapsedTime) + 0;
+    sphere1.position.z = 2*Math.sin(elapsedTime) + 0; // These to strings make it work
 
     // Update Orbital Controls
     // controls.update()
@@ -101,6 +105,20 @@ const tick = () =>
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
+    console.log(elapsedTime)
 }
-
 tick()
+
+// var t = 0;
+// function render() { 
+//     requestAnimationFrame(render); 
+//     t += 0.01;          
+//     sphere.rotation.y += 0.005;
+//     sphere1.rotation.y += 0.03;
+
+//     sphere1.position.x = 1*Math.cos(t) + 0;
+//     sphere1.position.z = 1*Math.sin(t) + 0; // These to strings make it work
+
+//     renderer.render(scene, camera); 
+// } 
+// render()

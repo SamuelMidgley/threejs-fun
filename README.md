@@ -1,6 +1,8 @@
 # The Solar System in ThreeJS
 Link to GitHub Page: https://samuelmidgley.github.io/threejs-fun/
 
+![screenshot](screenshot.png)
+
 Model of the solar system built using ThreeJS. The distance from the sun to the planets is based on data provided by NASA. The size of the planets and sun is not accurate though
 as you would not be able to see them.
 

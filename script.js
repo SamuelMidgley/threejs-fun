@@ -11,30 +11,68 @@ const scene = new THREE.Scene()
 // scene.add( axesHelper );
 
 
+// Particles (adds extra stars to galaxy map)
+var disc = new THREE.TextureLoader().load("https://threejs.org/examples/textures/sprites/disc.png");
+
+const particleGeometry = new THREE.BufferGeometry;
+const particlesCount = 5000;
+
+const posArray = new Float32Array(particlesCount * 3);
+
+for(let i = 0; i <particlesCount * 3; i++){
+    posArray[i] = (Math.random() - 0.5) *  50
+}
+
+particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3))
+const particlesMaterial = new THREE.PointsMaterial({
+    size: 0.005,
+    map: disc,
+    transparent: true
+})
+const particlesMesh = new THREE.Points(particleGeometry, particlesMaterial)
+scene.add(particlesMesh)
+
+
+// Add milky war and stars to background
+const spaceTexture = new THREE.TextureLoader().load("./img/galaxyMap.jpg")
+scene.background = spaceTexture;
+
+
+
 // Creating the Sun
-const geometry = new THREE.IcosahedronGeometry(1, 4);
-const material = new THREE.MeshBasicMaterial()
-material.color = new THREE.Color(0xf4ab32) // Yellow
+const geometry = new THREE.IcosahedronGeometry(1, 7);
+// Loading in custom texture map
+var sunMap = new THREE.TextureLoader().load("./img/sunTexture.jpg");
+const material = new THREE.MeshBasicMaterial({ map: sunMap })
 const sun = new THREE.Mesh(geometry,material)
 scene.add(sun)
 
+
+
 // Creating the Planets
-function planetCreator(radius, color){
+function planetCreator(radius, planetMap){
     const geometry = new THREE.IcosahedronGeometry(radius, 4)
-    const material = new THREE.MeshPhongMaterial()
-    material.color = new THREE.Color(color)
+    const material = new THREE.MeshPhongMaterial({ map: planetMap })
     const sphere = new THREE.Mesh(geometry, material)
     return sphere
 }
 
-const mercury = planetCreator(.1, 0xbbbabf)
-const venus = planetCreator(.2, 0xaf7b4b)
-const earth = planetCreator(.2, 0x3f4f21)
-const mars = planetCreator(.2, 0xe57d58)
-const jupiter = planetCreator(.4, 0xae816a)
-const saturn = planetCreator(.3, 0xebcb80)
-const uranus = planetCreator(.3, 0xcdf3f4)
-const neptune = planetCreator(.3, 0x3a57e0)
+var mercuryMap = new THREE.TextureLoader().load("./img/mercuryMap.jpg");
+const mercury = planetCreator(.1, mercuryMap)
+var venusMap = new THREE.TextureLoader().load("./img/venusMap.jpg");
+const venus = planetCreator(.2, venusMap)
+var earthMap = new THREE.TextureLoader().load("./img/earthTexture.jpg");
+const earth = planetCreator(.2, earthMap)
+var marsMap = new THREE.TextureLoader().load("./img/marsMap.jpg");
+const mars = planetCreator(.2, marsMap)
+var jupiterMap = new THREE.TextureLoader().load("./img/jupiterMap.jpg");
+const jupiter = planetCreator(.4, jupiterMap)
+var saturnMap = new THREE.TextureLoader().load("./img/saturnMap.jpg");
+const saturn = planetCreator(.3, saturnMap)
+var uranusMap = new THREE.TextureLoader().load("./img/uranusMap.jpg");
+const uranus = planetCreator(.3, uranusMap)
+var neptuneMap = new THREE.TextureLoader().load("./img/neptuneMap.jpg");
+const neptune = planetCreator(.3, neptuneMap)
 
 const planetList = [mercury, venus, earth, mars, jupiter, saturn, uranus, neptune]
 planetList.forEach(element => {
@@ -47,10 +85,22 @@ function planetOrbit(planet, radius, speed, elapsedTime, offset){
     planet.position.z = radius*Math.sin(offset + elapsedTime / speed) 
 }
 
+// Saturns Rings
+const ringGeometry = new THREE.RingGeometry(1, .5, 30)
+// const ringGeometry = new THREE.RingGeometry(10, 4, 30)
+const ringMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, side: THREE.DoubleSide, opacity: 0.25, transparent: true})
+// ringMaterial.Color = new THREE.Color(0xffffff)
+const saturnRing = new THREE.Mesh(ringGeometry, ringMaterial)
+scene.add(saturnRing)
+// saturnRing.rotation.z = Math.PI /2
+saturnRing.rotation.y = Math.PI
+saturnRing.rotation.x = Math.PI / 2
+
 
 // Lighting
 const pointLight = new THREE.PointLight(0xffffff, 2)
 scene.add(pointLight)
+
 
 // Sizes
 const sizes = {
@@ -73,11 +123,13 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+
+
 // Camera
 const camera = new THREE.PerspectiveCamera(100, sizes.width / sizes.height, 0.1, 100)
-camera.position.x = 10
-camera.position.y = 7
-camera.position.z = 10
+camera.position.x = 8
+camera.position.y = 15
+camera.position.z = 8
 // Point camera towards sun
 camera.lookAt(new THREE.Vector3(0, 0, 0))
 scene.add(camera)
@@ -92,6 +144,7 @@ const renderer = new THREE.WebGLRenderer({
 })
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.setClearColor(new THREE.Color('#191d1f'), 1)
 
 
 // Animator
@@ -101,15 +154,19 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
 
+    sun.rotation.y = - .05 * elapsedTime
+
+    const radiusMultiplier = 4;
     // Update objects
-    planetOrbit(mercury, 2, 1, elapsedTime, 0)
-    planetOrbit(venus, 4, 2, elapsedTime, .4)
-    planetOrbit(earth, 6, 4, elapsedTime, 0.2)
-    planetOrbit(mars, 8, 6, elapsedTime, .1)
-    planetOrbit(jupiter, 10, 7, elapsedTime, 1)
-    planetOrbit(saturn, 12, 8, elapsedTime, .5)
-    planetOrbit(uranus, 14, 9, elapsedTime, 1.7)
-    planetOrbit(neptune, 16, 10, elapsedTime, 3)
+    planetOrbit(mercury, (0.39*radiusMultiplier), 1, elapsedTime, 0)
+    planetOrbit(venus, (0.72*radiusMultiplier), 2, elapsedTime, .4)
+    planetOrbit(earth, (1*radiusMultiplier), 4, elapsedTime, 0.2)
+    planetOrbit(mars, (1.52*radiusMultiplier), 6, elapsedTime, .1)
+    planetOrbit(jupiter, (5.2*radiusMultiplier), 7, elapsedTime, 1)
+    planetOrbit(saturn, (9.54*radiusMultiplier), 8, elapsedTime, .5)
+    planetOrbit(saturnRing, (9.54*radiusMultiplier), 8, elapsedTime, .5)
+    planetOrbit(uranus, (19.2*radiusMultiplier), 9, elapsedTime, 1.7)
+    planetOrbit(neptune, (30.06*radiusMultiplier), 10, elapsedTime, 3)
 
     // Update Orbital Controls
     // controls.update()
@@ -119,6 +176,6 @@ const tick = () =>
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
-    console.log(elapsedTime)
+    // console.log(elapsedTime)
 }
 tick()
